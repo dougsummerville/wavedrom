@@ -77,10 +77,23 @@
         setStyle('TXT', styleTXT);
         WaveDrom.EditorRefresh();
     }
-
+ 
     function editorInit () {
         if (document.location.search) {
-            WaveDrom.cm.setValue(decodeURIComponent(window.location.search.substr(1)));
+	    var URI=decodeURIComponent(window.location.search.substr(1));
+            var prettyURI = JSON.stringify(URI).replace(/\\n/g,"")
+	    prettyURI = prettyURI.replace(/{\s*/g,"{")
+            prettyURI = prettyURI.replace(/}\s*,/g,"},\\n")
+            prettyURI = prettyURI.replace(/}\]/g,"}\\n]")
+            prettyURI = prettyURI.replace(/\]}/g,"]\\n}")
+            prettyURI = prettyURI.replace(/\[\s*{/g,"[\\n{")
+            prettyURI = prettyURI.replace(/{/,"{\\n")
+            prettyURI = prettyURI.replace(/{name/g,"    {name ")
+            //prettyURI = prettyURI.replace(/'}/g,"' }")
+            prettyURI = JSON.parse(prettyURI)
+	    console.log(prettyURI)
+            WaveDrom.cm.setValue(prettyURI);
+
             // document.getElementById ('InputJSON_0').value = decodeURIComponent(window.location.search.substr(1));
         }
         window.ondragover = function(e) { e.preventDefault(); return false; };
