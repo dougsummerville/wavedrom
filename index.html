@@ -1,104 +1,79 @@
-<!DOCTYPE html>
 <html>
-<head>
-  <meta charset="UTF-8">
-  <title>WaveDrom - Digital timing diagram everywhere</title>
-  <link rel="shortcut icon" href="images/favicon.ico"/>
-  <link href="https://fonts.googleapis.com/css?family=Roboto|Varela+Round&display=swap&subset=cyrillic" rel="stylesheet">
-  <style type="text/css">
-    body {
-      background: #eee;
-      text-align: center;
-    }
-    .logo {
-      width: 320px;
-      height: 320px;
-      background-repeat: no-repeat;
-      background-size: 100%;
-      background-image: url(images/logo.svg);
-      margin-right: auto;
-      margin-left: auto;
-      margin-bottom: 35px;
-    }
-    .word {
-      font-family: 'Varela Round', helvetica, Arial, sans-serif;
-    }
-    .roboto {
-      font-family: 'Roboto', helvetica, Arial, sans-serif;
-    }
-    .lll {
-      margin-top: 35px;
-      margin-bottom: 35px;
-    }
-    .lll > a {
-        padding: 30px 20px 0px;
-    }
-    .lll a:link    { color: #888; text-decoration: none; }
-    .lll a:visited { color: #888; text-decoration: none; }
-    .lll a:hover   { color: #F88; }
-    .lll a:active  { color: #88F; }
-    .word1 { font-size: 35px; }
-    .word2 {
-      font-size: 25px;
-      color: #999;
-      margin-bottom: 35px;
-    }
-    .word3 {
-      font-size: 18px;
-      margin-bottom: 35px;
-    }
-    a:link.new {
-      color: #f55;
-      font-weight: bold;
-    }
+    <head>
+        <meta charset="UTF-8">
+        <title>WaveDrom Editor</title>
+        <link rel="shortcut icon" href="images/favicon.ico"/>
+        <link href="https://fonts.googleapis.com/css?family=Ubuntu+Mono&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="css/codemirror.css">
+        <link rel="stylesheet" href="css/dialog.css">
+        <link rel="stylesheet" href="css/main.css">
+        <link rel="manifest" href="./manifest.json">
+        <!-- Expires: 2020-09-29 -->
+        <meta http-equiv="origin-trial" content="Am6ESaxxizmFrymZ2dfVBjueIKm0EM8AXy67E5TvX0TdHsAfjD6dVS58HwNdotsiKuI6Z0xzpEd02QFBbLO5HgYAAABqeyJvcmlnaW4iOiJodHRwczovL3dhdmVkcm9tLmNvbTo0NDMiLCJmZWF0dXJlIjoiTmF0aXZlRmlsZVN5c3RlbTIiLCJleHBpcnkiOjE2MDE0MjM5OTksImlzU3ViZG9tYWluIjp0cnVlfQ==">
 
-  </style>
-</head>
-<body>
+        <script src="scripts/codemirror-compressed.js"></script>
+        <script src="scripts/lodash.min.js"></script>
+        <script src="skins/default.js"></script>
+        <script src="skins/dark.js"></script>
+        <script src="skins/narrow.js"></script>
+        <script src="skins/lowkey.js"></script>
+        <script src="wavedrom.min.js"></script>
+        <script src="editor.js"></script>
+    </head>
 
-  <div class="roboto lll">
-    <a href='tutorial.html'>Tutorial</a>
-    <a href='editor.html'>Editor</a>
-    <a href='https://github.com/drom/wavedrom'>Source</a>
-    <a href='https://twitter.com/wavedrom'>Twitter</a>
-  </div>
+    <body onload="WaveDrom.editorInit()" onclick="WaveDrom.menuOpen(event)">
+        <div id="content">
+            <div class="toolbar">
+                <img class="button" alt="Memu" id="Menu" title="Menu" src="images/ic_menu.png"/>
+            </div>
+            <div style="display:none;" class="menu" id="menux">
+                <div id="version" align="right">v?.?.?</div>
+                <ul>
+                    <!--li>New</li>
+                    <li>Open...</li>
+                    <li>Save</li-->
+                    <li onclick="WaveDrom.loadJSON(event)"> <img class="button" src="images/ic_upload_json.png"/> Load... </li>
+                    <li onclick="WaveDrom.saveJSON(event)"> <img class="button" src="images/ic_download_json.png"/> Save As... </li>
+                    <li onclick="WaveDrom.saveSVG(event)"> <img class="button" src="images/ic_download_svg.png"/> Export SVG... </li>
+                    <li onclick="WaveDrom.savePNG(event)"> <img class="button" src="images/ic_download_png.png"/> Export PNG... </li>
+                </ul>
+                <ul>
+                    <li onclick="WaveDrom.editorState({rot:1})"> <img class="button" src="images/ic_rot.png" /> Rotate Layout </li>
+                    <li onclick="WaveDrom.editorState({per:1})"> <img class="button" src="images/ic_persent.png" /> Proportions </li>
+                    <li onclick="WaveDrom.setFullURL()"> <img class="button" src="images/ic_url.png"/> Expand URL </li>
+                    <li onclick="WaveDrom.gotoWaveDromGuide()" id="WaveDromGuide"> <img class="button" src="images/ic_guide.png"/> WaveDrom Guide </li>
+                    <li onclick="WaveDrom.gotoWaveDromHome()"  id="WaveDromHome"> <img class="button" src="images/ic_logo.png"/> on GitHub </li>
+                    <li style="display:none;">Exit</li>
+                </ul>
+            </div>
+            <input style="display:none;" id="fileDialogLoad" type="file" />
+            <input style="display:none;" id="fileDialogSave" type="file" nwsaveas="wavedrom.json" />
+            <input style="display:none;" id="fileDialogSVG" type="file" nwsaveas="wavedrom.svg" />
+            <input style="display:none;" id="fileDialogPNG" type="file" nwsaveas="wavedrom.png" />
+            <div id="SVG"><div id="SVGScroll"><div id="WaveDrom_Display_0"></div></div></div>
+            <div id="TXT"><textarea id="InputJSON_0"></textarea></div>
+        </div>
+        <script src="init.js"></script>
+        <script async src="https://www.googletagmanager.com/gtag/js?id=UA-21660728-3"></script>
+        <script>
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
 
-  <div class="logo"></div>
-  <div class="word word1">WaveDrom</div>
-  <div class="word word2">Digital Timing Diagram everywhere</div>
-  <div class="roboto word3">
-WaveDrom draws your Timing Diagram or Waveform from simple textual description.<br>
-It comes with description language, rendering engine and the editor.<br>
-WaveDrom editor works in the browser or can be installed on your system.<br>
-Rendering engine can be embeded into any webpage.
-  </div>
-
-  <div class="roboto lll">
-    <a href='https://github.com/wavedrom/wavedrom.github.io/releases'>Download editor</a>
-    <a href='https://github.com/drom/wavedrom/issues'>Issues</a>
-    <a href='https://groups.google.com/group/wavedrom'>User group</a>
-    <a class="new" href='images/SNUG2016_WaveDrom.pdf'>SNUG2016 Paper</a>
-    <a href='tutorial2.html'>Tutorial2 (schematic)</a>
-    <a href='impress.html'>Impress.js</a>
-  </div>
-  <div>
-    <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
-    <input type="hidden" name="cmd" value="_s-xclick">
-    <input type="hidden" name="encrypted" value="-----BEGIN PKCS7-----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-----END PKCS7-----
-    ">
-    <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donate_SM.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
-    <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
-    </form>
-  </div>
-
-  <script async src="https://www.googletagmanager.com/gtag/js?id=UA-21660728-3"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'UA-21660728-3');
-  </script>
-
-</body>
+          gtag('config', 'UA-21660728-3');
+        </script>
+        <script>
+            // define a handler to catch keyboard shortcuts
+            document.onkeyup = function(e) {
+                // key code 83 = 's'
+                if (e.ctrlKey && e.which == 83) {
+                    WaveDrom.saveJSON();
+                }
+                // key code 79 = 'o'
+                else if (e.ctrlKey && e.which == 79) {
+                    WaveDrom.loadJSON();
+                }
+            };
+        </script>
+    </body>
 </html>
